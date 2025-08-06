@@ -1,7 +1,25 @@
+/* Game Logic */
+
 let humanScore = 0;
 let computerScore = 0;
 let humanChoice;
 let computerChoice;
+const maxPoints = 5;
+
+function getHumanChoice(buttonClick) {
+    let target = buttonClick.target;
+    switch(target.id) {
+        case "rock":
+            humanChoice = "rock";
+            break;
+        case "paper":
+            humanChoice = "paper";
+            break;
+        case "scissors":
+            humanChoice = "scissors";
+            break;
+    }
+}
 
 function getComputerChoice() {
     let computerChoice;
@@ -15,10 +33,6 @@ function getComputerChoice() {
     return computerChoice;
 }
 
-function getHumanChoice() {
-    let humanChoice = prompt("Rock, Paper or Scissors?");
-    return humanChoice;
-}
 
 function playRound(humanChoice, computerChoice) {
     humanChoice = humanChoice.toLowerCase(); // make case insensitive by converting all to lowercase
@@ -28,51 +42,75 @@ function playRound(humanChoice, computerChoice) {
 
     // tie
     if (humanChoice === computerChoice) 
-        console.log(tie);
+        addToDom(tie);
     // losing cases
     else if (humanChoice === "rock" && computerChoice === "paper") {
-        console.log(losingMessage)
+        addToDom(losingMessage);
         computerScore++;
     }
     else if (humanChoice === "paper" && computerChoice === "scissors") {
-        console.log(losingMessage)
+        addToDom(losingMessage);
         computerScore++;
     }
     else if (humanChoice === "scissors" && computerChoice === "rock") {
-        console.log(losingMessage);
+        addToDom(losingMessage);
         computerScore++;
     }
     // winning cases
     else if (humanChoice === "rock" && computerChoice === "scissors") {
-        console.log(winningMessage);
+        addToDom(winningMessage);
         humanScore++;
     }
     else if (humanChoice === "paper" && computerChoice === "rock") {
-        console.log(winningMessage);
+        addToDom(winningMessage);
         humanScore++;
     }
     else if (humanChoice === "scissors" && computerChoice === "paper") {
-        console.log(winningMessage);
+        addToDom(winningMessage);
         humanScore++;
     }
-
 }
 
-function playGame() {
-    let rounds = 5;
-    while (rounds != 0) {
-        humanChoice = getHumanChoice();
-        computerChoice = getComputerChoice();
-        playRound(humanChoice, computerChoice);
-        rounds--;
+function checkGameStatus() {
+    if (humanScore === maxPoints || computerScore === maxPoints) {
+        switch(true) {
+            case humanScore === computerScore:
+                addToDom("A tie!");
+                break;
+            case humanScore < computerScore:
+                addToDom("You lost!");
+                break;
+            case humanScore > computerScore:
+                addToDom("You won!");
+                break;
+        }
+        humanChoices.removeEventListener("click", playGame);
     }
-    if (humanScore === computerScore)
-        console.log("A tie!");
-    else if (humanScore < computerScore)
-        console.log("You lost!");
-    else
-        console.log("You won!");
 }
 
-playGame();
+function playGame(buttonClick) {
+    getHumanChoice(buttonClick);
+    computerChoice = getComputerChoice();
+    playRound(humanChoice, computerChoice);
+    updateScore();
+    checkGameStatus();
+}
 
+/* Most HTML/CSS Logic */
+
+let body = document.querySelector("body");
+
+const humanChoices = document.querySelector("#humanChoices");
+
+humanChoices.addEventListener("click", playGame);
+
+function addToDom(string) {
+    let text = document.createElement("div");
+    text.textContent = string;
+    body.appendChild(text);
+}
+
+function updateScore() {
+    let score = document.querySelector("#score");
+    score.textContent = `Human Score: ${humanScore} Computer Score: ${computerScore}`;
+}
